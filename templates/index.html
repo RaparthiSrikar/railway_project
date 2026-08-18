@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Express Railway Ticket Pricing & Discount Calculator Application">
+    <title>Express Rail - Ticket Booking & Calculator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="background-glow">
+        <div class="glow-sphere sphere-1"></div>
+        <div class="glow-sphere sphere-2"></div>
+    </div>
+
+    <main class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-container">
+                <i class="fa-solid fa-train-subway logo-icon"></i>
+                <span class="logo-text">Express<span class="highlight">Rail</span></span>
+            </div>
+            <p class="subtitle">Instant Ticket Price & Senior Citizen Discount Calculator</p>
+        </header>
+
+        <!-- Main Card Section -->
+        <div class="glass-card">
+            <section class="booking-section">
+                <form id="booking-form" novalidate>
+                    <!-- Gender Selection -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fa-solid fa-user-group"></i> Select Gender
+                        </label>
+                        <div class="gender-grid">
+                            <label class="gender-card active" id="gender-m-card">
+                                <input type="radio" name="gender" value="male" checked hidden>
+                                <div class="card-content">
+                                    <div class="icon-circle">
+                                        <i class="fa-solid fa-mars"></i>
+                                    </div>
+                                    <div class="card-info">
+                                        <span class="gender-name">Male</span>
+                                        <span class="discount-hint">Senior (60+) get 30% OFF</span>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <label class="gender-card" id="gender-f-card">
+                                <input type="radio" name="gender" value="female" hidden>
+                                <div class="card-content">
+                                    <div class="icon-circle female-circle">
+                                        <i class="fa-solid fa-venus"></i>
+                                    </div>
+                                    <div class="card-info">
+                                        <span class="gender-name">Female</span>
+                                        <span class="discount-hint">Base 30% OFF | Senior (60+) 50%</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Age Input -->
+                    <div class="form-group">
+                        <label for="age-input" class="form-label">
+                            <i class="fa-solid fa-cake-candles"></i> Enter Age (0 - 200)
+                        </label>
+                        <div class="input-wrapper">
+                            <input 
+                                type="number" 
+                                id="age-input" 
+                                name="age" 
+                                min="0" 
+                                max="200" 
+                                placeholder="e.g. 62" 
+                                required
+                            >
+                            <span class="unit-badge">Years</span>
+                        </div>
+                        <!-- Quick Presets -->
+                        <div class="presets-container">
+                            <span class="preset-label">Quick select:</span>
+                            <button type="button" class="preset-btn" data-age="25">25 (Youth)</button>
+                            <button type="button" class="preset-btn" data-age="45">45 (Adult)</button>
+                            <button type="button" class="preset-btn" data-age="65">65 (Senior)</button>
+                        </div>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div id="error-alert" class="alert-box hidden" role="alert">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span id="error-message">Please enter a valid age</span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="calculate-btn" class="submit-btn">
+                        <span class="btn-text">Calculate Fare & Generate Ticket</span>
+                        <i class="fa-solid fa-arrow-right btn-icon"></i>
+                        <div class="spinner hidden" id="btn-spinner"></div>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Result Ticket Section -->
+            <section id="ticket-result" class="ticket-section hidden">
+                <div class="section-divider">
+                    <span>Issued Boarding Pass</span>
+                </div>
+
+                <div class="boarding-pass">
+                    <!-- Pass Header -->
+                    <div class="pass-header">
+                        <div class="train-brand">
+                            <i class="fa-solid fa-train"></i>
+                            <div>
+                                <h3 class="express-title">EXPRESS EXPRESS 101</h3>
+                                <span class="route-subtitle">METROPOLIS &bull; CENTRAL TERMINAL</span>
+                            </div>
+                        </div>
+                        <div class="category-pill" id="ticket-category-badge">
+                            Senior Citizen
+                        </div>
+                    </div>
+
+                    <!-- Pass Main Body -->
+                    <div class="pass-body">
+                        <div class="pass-row">
+                            <div class="pass-col">
+                                <span class="pass-label">PASSENGER GENDER</span>
+                                <span class="pass-value" id="ticket-gender">Male</span>
+                            </div>
+                            <div class="pass-col">
+                                <span class="pass-label">AGE</span>
+                                <span class="pass-value" id="ticket-age">65 yrs</span>
+                            </div>
+                            <div class="pass-col">
+                                <span class="pass-label">CLASS / SEAT</span>
+                                <span class="pass-value">AC 1st Class &bull; S-04</span>
+                            </div>
+                        </div>
+
+                        <!-- Price Breakdown -->
+                        <div class="price-breakdown-card">
+                            <div class="price-row">
+                                <span>Base Ticket Fare:</span>
+                                <span id="ticket-base-price">Rs. 1000</span>
+                            </div>
+                            <div class="price-row discount-highlight">
+                                <span>Applied Discount (<span id="ticket-discount-percent">30%</span>):</span>
+                                <span id="ticket-discount-amount">- Rs. 300</span>
+                            </div>
+                            <div class="price-divider"></div>
+                            <div class="price-row total-row">
+                                <span>Final Ticket Price:</span>
+                                <span class="total-amount" id="ticket-final-price">Rs. 700</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pass Footer & Barcode -->
+                    <div class="pass-footer">
+                        <div class="pass-barcode">
+                            <div class="barcode-lines"></div>
+                            <span class="ticket-number" id="ticket-pnr">PNR: RAIL-8892401</span>
+                        </div>
+                        <button type="button" class="print-btn" onclick="window.print()">
+                            <i class="fa-solid fa-print"></i> Print Ticket
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Rules Info Section -->
+        <footer class="pricing-rules-card">
+            <h4><i class="fa-solid fa-circle-info"></i> Official Discount Policy Matrix</h4>
+            <div class="rules-grid">
+                <div class="rule-item">
+                    <span class="rule-title"><i class="fa-solid fa-person"></i> Male (Age < 60)</span>
+                    <span class="rule-tag tag-normal">0% Discount (Rs. 1000)</span>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-title"><i class="fa-solid fa-person-cane"></i> Male (Age &ge; 60)</span>
+                    <span class="rule-tag tag-senior">30% Discount (Rs. 700)</span>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-title"><i class="fa-solid fa-person-dress"></i> Female (Age < 60)</span>
+                    <span class="rule-tag tag-female">30% Discount (Rs. 700)</span>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-title"><i class="fa-solid fa-person-cane"></i> Female (Age &ge; 60)</span>
+                    <span class="rule-tag tag-senior-female">50% Discount (Rs. 500)</span>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
